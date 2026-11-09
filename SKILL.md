@@ -237,18 +237,32 @@ Pixel values for layout — sizes, spacing, positions, offsets (`width`, `height
 }
 ```
 
-### 12. Fully-rounded corners use percentages, never a magic pixel
-For a fully-rounded shape, never fake it with a huge pixel radius (`border-radius: 9999px`, `999px`, `100px` "big enough"). Use a percentage: `50%` for a circle/dot (an element with equal width and height), `100%` for a pill/capsule (a rectangular element whose short ends should be fully round). The percentage scales with the element, so it stays correct if the size changes and reads as intent rather than a magic number. A genuine fixed corner radius (`border-radius: 12px` on a card) is not affected — this rule is only about the "make it fully round" case.
+### 12. Fully-rounded corners — no magic numbers
+No invented values: `9999px`, `999px`, `100px` "big enough" are all guesses that say nothing about the shape.
+
+- **Equal sides** (an avatar, a dot, an icon button) — `border-radius: 50%`. It scales with the element.
+- **A rectangle** (a tag, a pill-shaped button) — half its height, written out: `height: 32px` → `border-radius: 16px`. A percentage is wrong here: it resolves per axis, so `50%` or `100%` on a 160×32 box renders an ellipse, not a capsule.
+- **Height not fixed** — ask. A fully-round rectangle whose height depends on content or breakpoint has no single correct number; get the intended shape from the design instead of guessing one.
+
+A normal corner radius (`border-radius: 12px` on a card) is untouched — this rule is only about shapes meant to be fully round.
 
 ```scss
 /* bad */
+.tag {
+    height: 32px;
+    border-radius: 9999px;
+}
 .avatar {
     width: 24px;
     height: 24px;
-    border-radius: 9999px;
+    border-radius: 100%;
 }
 
 /* good */
+.tag {
+    height: 32px;
+    border-radius: 16px;
+}
 .avatar {
     width: 24px;
     height: 24px;

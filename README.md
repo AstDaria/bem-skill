@@ -6,6 +6,26 @@ Written for hand-built static pages — landings, marketing pages, anything that
 
 Works with Claude Code, OpenAI Codex, Cursor, Windsurf, and any agent that supports the [Agent Skills spec](https://agentskills.io/).
 
+## What it does
+
+Point the agent at `.scss`, `.css`, `.ejs`, `.html`, `.jsx` or `.tsx` files and it reports every violation as `file:line — rule — before → after`, applying the safe fixes and flagging the ones that need a rename across markup, styles and JS at once.
+
+```
+pricing.scss:42  — no-abbreviations — .nav__btn → .nav__button          flagged
+pricing.scss:57  — flat-selectors   — .pricing { .pricing__title } → top-level   fixed
+pricing.scss:61  — no-comments      — // hero section → removed         fixed
+pricing.scss:88  — whole-pixel      — bottom: -344.5px → -345px         fixed
+pricing.ejs:26   — accessibility    — <img> missing alt → alt added     fixed
+
+5 findings — 4 fixed, 1 flagged (rename touches markup + styles)
+```
+
+Three modes:
+
+- `audit` — report only, change nothing
+- `fix` — report and apply minimal-diff fixes (default)
+- `guide` — no scan, just keep the rules in context while writing new code
+
 ## Why
 
 The goal is less code — fewer classes, fewer selectors, fewer lines to read — so that a bug is found by searching for one name instead of by reading a whole file.
@@ -25,7 +45,7 @@ The result is a stylesheet where the number of lines tracks the number of real d
 
 ```html
 <!-- utility-first: the styling is the markup -->
-<button class="inline-flex items-center justify-center gap-2 rounded-full
+<button class="inline-flex items-center justify-center gap-2 rounded-lg
                bg-blue-600 px-6 py-3 text-sm font-semibold text-white
                shadow-sm transition hover:bg-blue-700 focus-visible:outline
                focus-visible:outline-2 focus-visible:outline-offset-2
@@ -48,7 +68,7 @@ Nothing here is searchable. To find every primary button you grep for a color cl
     justify-content: center;
     gap: 8px;
     padding: 12px 24px;
-    border-radius: 100%;
+    border-radius: 8px;
     font-size: 14px;
     font-weight: 600;
     transition: background-color 0.2s;
@@ -78,16 +98,6 @@ That is a real problem, solved well. But isolation is not the same as findabilit
 
 BEM solves collisions with discipline rather than tooling — a globally unique name you wrote yourself — and gets findability for free, at the cost of typing a longer class. If your project already runs on CSS Modules, these rules still apply inside it: the block/element/modifier naming, the flat selectors and the no-nesting rule all work unchanged, and you keep the scoping as a safety net on top.
 
-## What it does
-
-Point the agent at `.scss`, `.css`, `.ejs`, `.html`, `.jsx` or `.tsx` files and it reports every violation as `file:line — rule — before → after`, applying the safe fixes and flagging the ones that need a rename across markup, styles and JS at once.
-
-Three modes:
-
-- `audit` — report only, change nothing
-- `fix` — report and apply minimal-diff fixes (default)
-- `guide` — no scan, just keep the rules in context while writing new code
-
 ## The dialect
 
 Standard BEM from [bem.info](https://bem.info/) — `block`, `block__element`, `block--modifier` — plus two opinionated additions:
@@ -106,13 +116,17 @@ Four of them keep a class name a *styling* name and nothing else, and keep the p
 
 ## Install
 
-Claude Code — clone into your skills directory:
+```bash
+npx skills add https://github.com/AstDaria/bem-skill
+```
+
+Or clone it straight into your skills directory:
 
 ```bash
 git clone https://github.com/AstDaria/bem-skill.git ~/.claude/skills/bem
 ```
 
-Or drop the folder into a project at `.claude/skills/bem/`. Then invoke it with `/bem`, or just ask the agent to "fix these styles to BEM".
+Either way, invoke it with `/bem`, or just ask the agent to "fix these styles to BEM". To scope it to one project, put the folder at `.claude/skills/bem/` inside the repo.
 
 ## Project overrides
 
